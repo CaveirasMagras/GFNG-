@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlbfgdt30vvoi"]
+
+[ext_resource type="AudioStream" uid="uid://cbr8w4ma716b4" path="res://Assets/ES_Magic Wand Cast 1 - SFX Producer.mp3" id="1_l8igc"]
+
+[node name="Explosion Sound" type="AudioStreamPlayer2D"]
+stream = ExtResource("1_l8igc")
+autoplay = true

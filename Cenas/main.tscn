@@ -1,0 +1,337 @@
+[gd_scene load_steps=21 format=3 uid="uid://omev4jsnx274"]
+
+[ext_resource type="PackedScene" uid="uid://darfvoy0av7ny" path="res://Cenas/player.tscn" id="1_6n440"]
+[ext_resource type="Script" path="res://Cenas/main.gd" id="1_mshqy"]
+[ext_resource type="PackedScene" uid="uid://dmd0yoqah3qhw" path="res://Cenas/Maps/map_1.tscn" id="2_4ljci"]
+[ext_resource type="FontFile" uid="uid://dg5fh3egkn80p" path="res://Assets/vcr_osd_mono/VCR_OSD_MONO_1.001.ttf" id="4_auuan"]
+[ext_resource type="AudioStream" uid="uid://dev4atri8xwgt" path="res://Assets/ES_Press X Twice - Lexica.mp3" id="5_l58u7"]
+[ext_resource type="Texture2D" uid="uid://cc1fn6upo5wuc" path="res://Assets/Area Demarcada.png" id="6_io5ec"]
+[ext_resource type="Texture2D" uid="uid://bdjus2dliwvr3" path="res://Assets/Seta.png" id="7_gk86b"]
+[ext_resource type="Texture2D" uid="uid://fh6x7dov1hg8" path="res://Assets/SetaController.png" id="8_tl3jq"]
+[ext_resource type="Texture2D" uid="uid://iera4kk5xmxj" path="res://Assets/RestartController.png" id="9_b4mo0"]
+[ext_resource type="PackedScene" uid="uid://qjxq2po84do3" path="res://Cenas/enemy.tscn" id="9_q552b"]
+[ext_resource type="Texture2D" uid="uid://ctxew0bbe2w7d" path="res://Assets/BigCircle.png" id="10_yersj"]
+[ext_resource type="Texture2D" uid="uid://chjp10s08snud" path="res://Assets/SmallCircle.png" id="11_8mvks"]
+[ext_resource type="Texture2D" uid="uid://vhe3mufubsur" path="res://Assets/PauseController.png" id="11_yt6hy"]
+[ext_resource type="Texture2D" uid="uid://c5pmkwoqryxps" path="res://Assets/ResumeController.png" id="12_mhwu3"]
+[ext_resource type="Texture2D" uid="uid://dw5b0w3ntl4xv" path="res://Assets/Menu.png" id="15_0e2ng"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kch8c"]
+size = Vector2(11.5, 12)
+
+[sub_resource type="GDScript" id="GDScript_d0hwo"]
+script/source = "extends Area2D
+
+@onready var BigCricle = $BigCircle
+@onready var SmallCircle = $\"Small Circle\"
+
+@onready var MaxDistance = $CollisionShape2D.shape.radius
+
+var touchposition
+
+var touched = false
+
+func _input(event) -> void:
+	if event is InputEventScreenDrag:
+		touchposition = event.position
+	if event is InputEventScreenTouch:
+		touchposition = event.position
+		var distance = event.position.distance_to(BigCricle.global_position)
+		if not touched:
+			if distance<MaxDistance:
+				touched = true
+		else:
+			SmallCircle.position = Vector2(0,0)
+			touched = false
+	pass
+
+func _process(delta: float) -> void:
+
+	if touched:
+		SmallCircle.global_position = touchposition
+		SmallCircle.position = BigCricle.position +(SmallCircle.position - BigCricle.position).limit_length(MaxDistance)
+
+func get_velo():
+	var joy_velo = Vector2(0,0)
+	joy_velo.x = SmallCircle.position.x / MaxDistance
+	joy_velo.y = SmallCircle.position.y / MaxDistance
+	return joy_velo
+"
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ml6x2"]
+radius = 96.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rt43x"]
+size = Vector2(86.5, 105)
+
+[sub_resource type="GDScript" id="GDScript_jlsm8"]
+script/source = "extends Control
+
+func _process(delta: float) -> void:
+	if Input.is_action_just_pressed(\"Pause\"):
+		Engine.time_scale = 0
+		$Menu.visible = true
+		$ColorRect.visible = true
+		$\"Pause Button\".visible = false
+		get_tree().paused = true
+		$\"Resume Button\".visible = true
+	if Input.is_action_just_pressed(\"Resume\"):
+		$Menu.visible = false
+		$ColorRect.visible = false
+		Engine.time_scale = 1
+		$\"Resume Button\".visible = false
+		get_tree().paused = false
+		$\"Pause Button\".visible = true
+	pass
+
+
+func _on_menu_pressed() -> void:
+	Engine.time_scale = 1
+	get_tree().paused = false
+	get_tree().change_scene_to_file(\"res://Cenas/menu_inicial.tscn\")
+	pass # Replace with function body.
+"
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_mshqy")
+
+[node name="Map1" parent="." instance=ExtResource("2_4ljci")]
+layer_0/tile_data = PackedInt32Array(0, 0, 0, 65536, 0, 1, 131072, 0, 2, 196608, 0, 3, 262144, 0, 4, 327680, 0, 5, 393216, 0, 6, 458752, 0, 7, 1, 65536, 0, 65537, 65536, 1, 131073, 65536, 2, 196609, 65536, 3, 262145, 65536, 4, 327681, 65536, 5, 393217, 65536, 6, 458753, 65536, 7, 2, 131072, 0, 65538, 131072, 1, 131074, 131072, 2, 196610, 131072, 3, 262146, 131072, 4, 327682, 131072, 5, 393218, 131072, 6, 458754, 131072, 7, 3, 196608, 0, 65539, 196608, 1, 131075, 196608, 2, 196611, 196608, 3, 262147, 196608, 4, 327683, 196608, 5, 393219, 196608, 6, 458755, 720896, 6, 4, 262144, 0, 65540, 262144, 1, 131076, 262144, 2, 196612, 262144, 3, 262148, 262144, 4, 327684, 262144, 5, 393220, 262144, 6, 458756, 262144, 7, 5, 327680, 0, 65541, 327680, 1, 131077, 327680, 2, 196613, 327680, 3, 262149, 327680, 4, 327685, 655360, 5, 393221, 327680, 6, 458757, 327680, 7, 6, 393216, 0, 65542, 393216, 1, 131078, 393216, 2, 196614, 393216, 3, 262150, 393216, 4, 327686, 393216, 5, 393222, 393216, 6, 458758, 393216, 7, 7, 458752, 0, 65543, 458752, 1, 131079, 458752, 2, 196615, 458752, 3, 262151, 458752, 4, 327687, 458752, 5, 393223, 458752, 6, 458759, 458752, 7, 8, 0, 0, 65544, 0, 1, 131080, 0, 2, 196616, 0, 3, 262152, 0, 4, 327688, 0, 5, 393224, 0, 6, 458760, 0, 7, 9, 65536, 0, 65545, 65536, 1, 131081, 65536, 2, 196617, 65536, 3, 262153, 65536, 4, 327689, 65536, 5, 393225, 65536, 6, 458761, 65536, 7, 10, 131072, 0, 65546, 131072, 1, 131082, 131072, 2, 196618, 131072, 3, 262154, 131072, 4, 327690, 131072, 5, 393226, 131072, 6, 458762, 131072, 7, 11, 196608, 0, 65547, 196608, 1, 131083, 196608, 2, 196619, 196608, 3, 262155, 196608, 4, 327691, 196608, 5, 393227, 196608, 6, 458763, 196608, 7, 12, 262144, 0, 65548, 262144, 1, 131084, 262144, 2, 196620, 262144, 3, 262156, 262144, 4, 327692, 262144, 5, 393228, 262144, 6, 458764, 262144, 7, 13, 720896, 2, 65549, 720896, 3, 131085, 327680, 2, 196621, 327680, 3, 262157, 327680, 4, 327693, 327680, 5, 393229, 327680, 6, 458765, 327680, 7, 14, 393216, 0, 65550, 393216, 1, 131086, 393216, 2, 196622, 0, 0, 262158, 0, 1, 327694, 0, 2, 393230, 0, 3, 458766, 0, 4, 15, 458752, 0, 65551, 458752, 1, 131087, 458752, 2, 196623, 65536, 0, 262159, 65536, 1, 327695, 65536, 2, 393231, 65536, 3, 458767, 65536, 4, 16, 0, 0, 65552, 0, 1, 131088, 0, 2, 196624, 131072, 0, 262160, 131072, 1, 327696, 131072, 2, 393232, 131072, 3, 458768, 131072, 4, 17, 65536, 0, 65553, 851968, 2, 131089, 851968, 3, 196625, 196608, 0, 262161, 196608, 1, 327697, 196608, 2, 393233, 196608, 3, 458769, 196608, 4, 18, 131072, 0, 65554, 131072, 1, 131090, 131072, 2, 196626, 262144, 0, 262162, 262144, 1, 327698, 262144, 2, 393234, 262144, 3, 458770, 262144, 4, 19, 196608, 0, 65555, 196608, 1, 131091, 196608, 2, 196627, 327680, 0, 262163, 327680, 1, 327699, 327680, 2, 393235, 327680, 3, 458771, 327680, 4, 20, 262144, 0, 65556, 262144, 1, 131092, 262144, 2, 196628, 393216, 0, 262164, 393216, 1, 327700, 393216, 2, 393236, 393216, 3, 458772, 393216, 4, 21, 327680, 0, 65557, 327680, 1, 131093, 327680, 2, 196629, 458752, 0, 262165, 458752, 1, 327701, 458752, 2, 393237, 458752, 3, 458773, 458752, 4, 22, 393216, 0, 65558, 393216, 1, 131094, 393216, 2, 196630, 720896, 6, 262166, 720896, 7, 327702, 393216, 5, 393238, 393216, 6, 458774, 393216, 7, 23, 458752, 0, 65559, 458752, 1, 131095, 458752, 2, 196631, 458752, 3, 262167, 458752, 4, 327703, 458752, 5, 393239, 458752, 6, 458775, 458752, 7, 524304, 131072, 5, 589840, 131072, 6, 655376, 131072, 7, 720912, 0, 3, 786448, 0, 4, 851984, 983040, 15, 524305, 196608, 5, 589841, 196608, 6, 655377, 196608, 7, 720913, 65536, 3, 786449, 65536, 4, 851985, 983040, 15, 524306, 262144, 5, 655378, 262144, 7, 720914, 131072, 3, 786450, 131072, 4, 851986, 983040, 15, 524307, 327680, 5, 589843, 327680, 6, 655379, 524288, 6, 720915, 524288, 7, 786451, 196608, 4, 851987, 983040, 15, 524308, 393216, 5, 589844, 393216, 6, 655380, 589824, 6, 720916, 589824, 7, 786452, 262144, 4, 851988, 983040, 15, 524309, 458752, 5, 589845, 458752, 6, 655381, 458752, 7, 720917, 327680, 3, 786453, 327680, 4, 851989, 983040, 15, 524310, 393216, 0, 589846, 393216, 1, 655382, 393216, 2, 720918, 393216, 3, 786454, 393216, 4, 851990, 983040, 15, 524311, 458752, 0, 589847, 458752, 1, 655383, 458752, 2, 720919, 458752, 3, 786455, 458752, 4, 851991, 983040, 15, 524296, 0, 0, 589832, 0, 1, 655368, 0, 2, 720904, 0, 3, 786440, 0, 4, 851976, 983040, 15, 524297, 65536, 0, 589833, 65536, 1, 655369, 65536, 2, 720905, 65536, 3, 786441, 65536, 4, 851977, 983040, 15, 524298, 655360, 6, 589834, 655360, 7, 655370, 131072, 2, 720906, 131072, 3, 786442, 131072, 4, 851978, 983040, 15, 524299, 720896, 6, 589835, 720896, 7, 655371, 196608, 2, 720907, 196608, 3, 786443, 196608, 4, 524300, 262144, 0, 589836, 262144, 1, 655372, 262144, 2, 720908, 262144, 3, 786444, 262144, 4, 524301, 327680, 0, 589837, 327680, 1, 655373, 327680, 2, 720909, 327680, 3, 786445, 327680, 4, 524302, 0, 5, 589838, 0, 6, 655374, 0, 7, 720910, 393216, 3, 786446, 393216, 4, 851982, 983040, 15, 524303, 65536, 5, 589839, 65536, 6, 655375, 65536, 7, 720911, 458752, 3, 786447, 458752, 4, 851983, 983040, 15, 524288, 0, 0, 589824, 0, 1, 655360, 0, 2, 720896, 0, 3, 786432, 0, 4, 851968, 983040, 15, 524289, 65536, 0, 589825, 65536, 1, 655361, 65536, 2, 720897, 65536, 3, 786433, 65536, 4, 851969, 983040, 15, 524290, 131072, 0, 589826, 131072, 1, 655362, 131072, 2, 720898, 131072, 3, 786434, 131072, 4, 851970, 983040, 15, 524291, 720896, 7, 589827, 196608, 1, 655363, 196608, 2, 720899, 196608, 3, 786435, 196608, 4, 851971, 983040, 15, 524292, 262144, 0, 589828, 262144, 1, 655364, 262144, 2, 720900, 262144, 3, 786436, 262144, 4, 851972, 983040, 15, 524293, 327680, 0, 589829, 327680, 1, 655365, 327680, 2, 720901, 327680, 3, 786437, 327680, 4, 851973, 983040, 15, 524294, 393216, 0, 589830, 393216, 1, 655366, 393216, 2, 720902, 393216, 3, 786438, 393216, 4, 851974, 983040, 15, 524295, 458752, 0, 589831, 458752, 1, 655367, 458752, 2, 720903, 458752, 3, 786439, 458752, 4, 851975, 983040, 15, -65520, 983040, 15, -65519, 983040, 15, -65518, 983040, 15, -65517, 983040, 15, -65516, 983040, 15, -65515, 983040, 15, -65514, 983040, 15, -65513, 983040, 15, -65528, 983040, 15, -65527, 983040, 15, -65526, 983040, 15, -65525, 983040, 15, -65524, 983040, 15, -65523, 983040, 15, -65522, 983040, 15, -65521, 983040, 15, -65536, 983040, 15, -65535, 983040, 15, -65534, 983040, 15, -65533, 983040, 15, -65532, 983040, 15, -65531, 983040, 15, -65530, 983040, 15, -65529, 983040, 15, 589842, 262144, 6, -1, 983040, 15, 65535, 983040, 15, 131071, 983040, 15, 196607, 983040, 15, 262143, 983040, 15, 327679, 983040, 15, 393215, 983040, 15, 458751, 983040, 15, 524287, 983040, 15, 589823, 983040, 15, 655359, 983040, 15, 720895, 983040, 15, 786431, 983040, 15, 851967, 983040, 15, 917503, 983040, 15, 851992, 983040, 15, 786456, 983040, 15, 720920, 983040, 15, 655384, 983040, 15, 589848, 983040, 15, 524312, 983040, 15, 458776, 983040, 15, 393240, 983040, 15, 327704, 983040, 15, 262168, 983040, 15, 196632, 983040, 15, 131096, 983040, 15, 65560, 983040, 15, 24, 983040, 15, -65512, 983040, 15, 851981, 983040, 15, 851980, 983040, 15, 851979, 983040, 15)
+
+[node name="Timer" type="Timer" parent="."]
+
+[node name="TimerText" type="RichTextLabel" parent="."]
+visible = false
+top_level = true
+z_index = 10
+offset_left = 493.0
+offset_top = 12.0
+offset_right = 682.0
+offset_bottom = 86.0
+theme_override_fonts/normal_font = ExtResource("4_auuan")
+theme_override_font_sizes/normal_font_size = 60
+text = "00:00"
+fit_content = true
+
+[node name="Player" parent="." instance=ExtResource("1_6n440")]
+z_index = 5
+position = Vector2(568, 298)
+
+[node name="GameOverText" type="RichTextLabel" parent="."]
+visible = false
+z_index = 10
+offset_left = 165.0
+offset_top = 211.0
+offset_right = 986.0
+offset_bottom = 438.0
+theme_override_fonts/normal_font = ExtResource("4_auuan")
+theme_override_font_sizes/normal_font_size = 60
+bbcode_enabled = true
+text = "[center]Ah não!
+Tente de novo!"
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_l58u7")
+volume_db = -10.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+z_index = 10
+offset_left = 103.0
+offset_top = 65.0
+offset_right = 583.0
+offset_bottom = 132.0
+scale = Vector2(2, 2)
+theme_override_fonts/normal_font = ExtResource("4_auuan")
+bbcode_enabled = true
+text = "[center]Chegue na área demarcada usando o controle![/center]"
+
+[node name="AreaTutorial" type="Area2D" parent="."]
+position = Vector2(1008, 567)
+scale = Vector2(2, 2)
+
+[node name="AreaSp" type="Sprite2D" parent="AreaTutorial"]
+texture = ExtResource("6_io5ec")
+
+[node name="SetaSp" type="Sprite2D" parent="AreaTutorial"]
+position = Vector2(0.5, -44)
+texture = ExtResource("7_gk86b")
+
+[node name="SetaSp2" type="Sprite2D" parent="AreaTutorial"]
+position = Vector2(-420, -95.5)
+texture = ExtResource("7_gk86b")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AreaTutorial"]
+shape = SubResource("RectangleShape2D_kch8c")
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="AreaTutorial"]
+modulate = Color(1, 0.584314, 0, 1)
+z_index = 10
+offset_left = -532.0
+offset_top = -135.5
+offset_right = -308.0
+offset_bottom = -68.5
+theme_override_fonts/normal_font = ExtResource("4_auuan")
+bbcode_enabled = true
+text = "[center]Controle[/center]"
+
+[node name="RichTextLabel3" type="RichTextLabel" parent="AreaTutorial"]
+modulate = Color(1, 0.584314, 0, 1)
+z_index = 10
+offset_left = -112.0
+offset_top = -87.5
+offset_right = 112.0
+offset_bottom = -20.5
+theme_override_fonts/normal_font = ExtResource("4_auuan")
+bbcode_enabled = true
+text = "[center]Chegue aqui![/center]"
+
+[node name="AndroidController" type="Control" parent="."]
+z_index = 20
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Cima" type="TouchScreenButton" parent="AndroidController"]
+visible = false
+z_index = 30
+position = Vector2(136, 408)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("8_tl3jq")
+action = "UP"
+visibility_mode = 1
+
+[node name="Baixo" type="TouchScreenButton" parent="AndroidController"]
+visible = false
+z_index = 30
+position = Vector2(232, 608)
+rotation = 3.14159
+scale = Vector2(2, 2)
+texture_normal = ExtResource("8_tl3jq")
+action = "DOWN"
+visibility_mode = 1
+
+[node name="Direita" type="TouchScreenButton" parent="AndroidController"]
+visible = false
+z_index = 30
+position = Vector2(336, 512)
+rotation = 1.57079
+scale = Vector2(2, 2)
+texture_normal = ExtResource("8_tl3jq")
+action = "RIGHT"
+visibility_mode = 1
+
+[node name="Esquerda" type="TouchScreenButton" parent="AndroidController"]
+visible = false
+z_index = 30
+position = Vector2(32, 608)
+rotation = 4.71239
+scale = Vector2(2, 2)
+texture_normal = ExtResource("8_tl3jq")
+action = "LEFT"
+visibility_mode = 1
+
+[node name="RestartButton" type="TouchScreenButton" parent="AndroidController"]
+visible = false
+z_index = 30
+position = Vector2(528, 336)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("9_b4mo0")
+action = "ui_accept"
+
+[node name="JoyStick" type="Area2D" parent="AndroidController"]
+position = Vector2(168, 504)
+script = SubResource("GDScript_d0hwo")
+
+[node name="BigCircle" type="Sprite2D" parent="AndroidController/JoyStick"]
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("10_yersj")
+
+[node name="Small Circle" type="Sprite2D" parent="AndroidController/JoyStick"]
+texture = ExtResource("11_8mvks")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AndroidController/JoyStick"]
+shape = SubResource("CircleShape2D_ml6x2")
+
+[node name="Enemy Stage1" parent="." instance=ExtResource("9_q552b")]
+position = Vector2(-129, 534)
+scale = Vector2(2, 2)
+Perseguidor = false
+Speed = 0
+
+[node name="FirstEnemy" type="Area2D" parent="."]
+position = Vector2(1432.55, 491.701)
+scale = Vector2(2, 2)
+collision_layer = 255
+collision_mask = 255
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FirstEnemy"]
+position = Vector2(8.97565, 17.6495)
+shape = SubResource("RectangleShape2D_rt43x")
+
+[node name="Node" type="Node" parent="."]
+
+[node name="Area2D" type="Area2D" parent="Node"]
+light_mask = 495
+visibility_layer = 495
+collision_layer = 255
+collision_mask = 255
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Node/Area2D"]
+polygon = PackedVector2Array(-312, -149, -310, 817, 1748, 813, 1716, -179, -310, -113, -314, -223, 1740, -333, 1820, 477, 1806, 865, -412, 857, -418, -201)
+
+[node name="TimerStage2" type="Timer" parent="."]
+wait_time = 40.0
+one_shot = true
+
+[node name="PauseMenu" type="Control" parent="."]
+process_mode = 3
+z_index = 20
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = SubResource("GDScript_jlsm8")
+
+[node name="Pause Button" type="TouchScreenButton" parent="PauseMenu"]
+z_index = 2
+position = Vector2(1040, 16)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("11_yt6hy")
+action = "Pause"
+
+[node name="Resume Button" type="TouchScreenButton" parent="PauseMenu"]
+visible = false
+z_index = 2
+position = Vector2(1040, 16)
+scale = Vector2(2, 2)
+texture_normal = ExtResource("12_mhwu3")
+action = "Resume"
+
+[node name="Menu" type="TouchScreenButton" parent="PauseMenu"]
+process_priority = 2
+visible = false
+z_index = 1
+position = Vector2(808, 32)
+scale = Vector2(3, 3)
+texture_normal = ExtResource("15_0e2ng")
+
+[node name="ColorRect" type="ColorRect" parent="PauseMenu"]
+visible = false
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0.08, 0.08, 0.08, 0.403922)
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="finished" from="AudioStreamPlayer2D" to="." method="_on_audio_stream_player_2d_finished"]
+[connection signal="body_entered" from="AreaTutorial" to="." method="_on_area_tutorial_body_entered"]
+[connection signal="pressed" from="AndroidController/Cima" to="." method="_on_cima_pressed"]
+[connection signal="pressed" from="AndroidController/Baixo" to="." method="_on_cima_pressed"]
+[connection signal="pressed" from="AndroidController/Direita" to="." method="_on_cima_pressed"]
+[connection signal="pressed" from="AndroidController/Esquerda" to="." method="_on_cima_pressed"]
+[connection signal="body_entered" from="FirstEnemy" to="." method="_on_first_enemy_body_entered"]
+[connection signal="body_entered" from="Node/Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="timeout" from="TimerStage2" to="." method="_on_timer_stage_2_timeout"]
+[connection signal="pressed" from="PauseMenu/Menu" to="." method="_on_menu_pressed"]
+[connection signal="pressed" from="PauseMenu/Menu" to="PauseMenu" method="_on_menu_pressed"]
